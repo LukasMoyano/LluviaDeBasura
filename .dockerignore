@@ -1,0 +1,28 @@
+# Git
+.git
+.gitignore
+.github/
+
+# Entornos virtuales y Python
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+
+# Entornos e IDEs
+.vscode/
+.idea/
+.env
+
+# Archivos de SO
+.DS_Store
+Thumbs.db
+
+# Excluir la propia configuración Docker/Deploy para aligerar contexto
+Dockerfile
+.dockerignore
+render.yaml

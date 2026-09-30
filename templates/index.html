@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Lluvia de Basura | -IR- Productions</title>
+
+  <!-- Font-Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Estilos Cyberpunk Andino -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  
+  <!-- MediaPipe Web CDN (Tasks Vision) -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.12/vision_bundle.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <!-- ===================== Background Slideshow ===================== -->
+  <div id="global-immersive-bg">
+    <img src="{{ url_for('static', filename='images/cyber-tree.jpg') }}" class="bg-slide" style="animation-delay: 0s;" alt="Cyber Tree">
+    <img src="{{ url_for('static', filename='images/forest-recycle.jpg') }}" class="bg-slide" style="animation-delay: 6s;" alt="Forest Recycle">
+    <img src="{{ url_for('static', filename='images/sprout-recycle.jpg') }}" class="bg-slide" style="animation-delay: 12s;" alt="Sprout Recycle">
+    <img src="{{ url_for('static', filename='images/macro-leaf.jpg') }}" class="bg-slide" style="animation-delay: 18s;" alt="Macro Leaf">
+    <div class="bg-overlay"></div>
+  </div>
+
+  <!-- ===================== Header & Nav ===================== -->
+  <header class="header sticky">
+    <div class="header-container">
+      <!-- Logo Metalizado -->
+      <a href="#" class="logo-link">
+        <div class="logo-container">
+          <div class="logo-box">
+            <span class="logo-initials">IR</span>
+          </div>
+          <span class="logo-text">Productions</span>
+        </div>
+      </a>
+
+      <!-- Navbar -->
+      <nav class="navbar">
+        <a class="nav-btn" href="#home">Inicio</a>
+        <a class="nav-btn" href="#game-section">Juega la Demo</a>
+        <a class="nav-btn" href="#solutions">Soluciones B2B</a>
+        <a class="nav-btn" href="#technology">Tecnología</a>
+        <a href="#contact" class="btn btn-cta neon-border neon-text" style="padding: 8px 20px; font-size: 0.9rem;">Contacto</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===================== Hero Section (Home) ===================== -->
+  <section class="home hero-section grid-texture" id="home">
+    <div class="hero-content">
+      <h1 class="acid-gold-text glitch-title" data-text="Sostenibilidad Interactiva para el Futuro">
+        Sostenibilidad Interactiva para el Futuro
+      </h1>
+      <p class="subtitle">
+        Llevamos la educación ambiental a otro nivel. Videojuegos controlados por Inteligencia Artificial y Visión Computacional, adaptables a tu institución.
+      </p>
+      <a href="#game-section" class="btn btn-cta neon-border neon-text">[ PROBAR DEMO AHORA ]</a>
+    </div>
+    <div class="hero-bg-overlay"></div>
+  </section>
+
+  <!-- ===================== Área de Juego (Nueva Sección) ===================== -->
+  <section class="game-area" id="game-section">
+    <div class="heading text-center">
+      <h2 class="contrast-text">Demostración Interactiva</h2>
+      <p style="color: #ccc;">(Asegúrate de permitir el acceso a la cámara)</p>
+    </div>
+    
+    <div class="game-container glass-panel metal-border">
+      <video id="webcam" autoplay playsinline hidden></video>
+      <canvas id="gameCanvas" width="1280" height="720"></canvas>
+      
+      <!-- Overlay UI for Game -->
+      <div id="game-ui-overlay" class="game-overlay">
+        <button id="btn-calibrate" class="btn btn-terminal neon-border neon-text">[ INICIAR_CALIBRACIÓN_IA ]</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Soluciones Institucionales ===================== -->
+  <section class="solutions-section" id="solutions">
+    <div class="heading text-center">
+      <h2 class="contrast-text">Soluciones Institucionales</h2>
+      <span style="color: #aaa;">Cómo adaptamos esta tecnología a tu negocio</span>
+    </div>
+
+    <div class="box-container">
+      <div class="solution-card glass-panel neon-border">
+        <i class="fas fa-recycle neon-text icon-large"></i>
+        <h3 class="contrast-text">Integración Post-Consumo</h3>
+        <p>Enlazamos el juego con sus programas reales de recolección, recompensando a los usuarios que aprenden a reciclar correctamente.</p>
+      </div>
+      
+      <div class="solution-card glass-panel neon-border">
+        <i class="fas fa-gamepad neon-text icon-large"></i>
+        <h3 class="contrast-text">Activaciones BTL Gamificadas</h3>
+        <p>Pantallas interactivas gigantes en centros comerciales o ferias, atrayendo al público con tecnología de captura de movimiento inmersiva.</p>
+      </div>
+
+      <div class="solution-card glass-panel neon-border">
+        <i class="fas fa-chart-pie neon-text icon-large"></i>
+        <h3 class="contrast-text">Dashboards de Métricas</h3>
+        <p>Visualización de impacto en tiempo real. Análisis de datos, retención de aprendizaje y estadísticas corporativas de RS.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Tecnología ===================== -->
+  <section class="tech-section grid-texture" id="technology">
+    <div class="heading text-center">
+      <h2 class="contrast-text">Nuestra Magia Tecnológica</h2>
+    </div>
+
+    <div class="box-container">
+      <div class="tech-card glass-panel">
+        <h3 class="acid-gold-text">Control Natural por Gestos</h3>
+        <p>Olvídate del mouse y el teclado. Nuestro motor de Visión Artificial detecta las manos del usuario a través de cualquier cámara web estándar, permitiendo que literalmente agarren y suelten residuos virtuales en el aire.</p>
+      </div>
+      
+      <div class="tech-card glass-panel">
+        <h3 class="acid-gold-text">Zero Latency Edge-Computing</h3>
+        <p>No enviamos tu video a servidores externos. Todo el procesamiento neuronal y el reconocimiento espacial ocurren directamente en tu navegador, garantizando privacidad absoluta y respuesta instantánea.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== Formulario de Contacto (Captación B2B) ==================== -->
+  <section class="contact-section" id="contact">
+    <div class="heading text-center">
+      <h2 class="contrast-text">Contacto B2B</h2>
+      <span style="color: #aaa;">Solicite una propuesta personalizada</span>
+    </div>
+
+    <form class="glass-panel contact-form metal-border" id="b2b-form" method="post">
+      <div class="input-row">
+        <div class="input-field">
+          <label class="contrast-text">Nombre Completo</label>
+          <input type="text" name="name" class="glass-input" placeholder="Ej. Juan Pérez" required>
+        </div>
+        <div class="input-field">
+          <label class="contrast-text">Institución / Empresa</label>
+          <input type="text" name="company" class="glass-input" placeholder="Nombre de la empresa" required>
+        </div>
+      </div>
+      
+      <div class="input-row">
+        <div class="input-field">
+          <label class="contrast-text">Correo Electrónico Corporativo</label>
+          <input type="email" name="email" class="glass-input" placeholder="correo@empresa.com" required>
+        </div>
+        <div class="input-field">
+          <label class="contrast-text">Tipo de Solución</label>
+          <select name="solution_type" class="glass-input" required>
+            <option value="Activacion BTL">Activación BTL Gamificada</option>
+            <option value="Programa Educativo">Programa Educativo Colegios</option>
+            <option value="Plataforma Web">Licenciamiento Web B2B</option>
+            <option value="Otro">Otro requerimiento</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="submit-container">
+        <button type="submit" class="btn btn-cta neon-border neon-text">[ ENVIAR SOLICITUD ]</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Scripts (Con Cache-Busting) -->
+  <script src="{{ url_for('static', filename='js/ai_vision.js') }}?v=2"></script>
+  <script src="{{ url_for('static', filename='js/game_engine.js') }}?v=2"></script>
+  <script src="{{ url_for('static', filename='js/main_ui.js') }}?v=2"></script>
+
+</body>
+</html>
