@@ -38,13 +38,18 @@
         </div>
       </a>
 
+      <!-- Hamburger Icon (Mobile) -->
+      <div class="menu-toggle" id="mobile-menu">
+        <i class="fas fa-bars"></i>
+      </div>
+
       <!-- Navbar -->
-      <nav class="navbar">
+      <nav class="navbar" id="navbar">
         <a class="nav-btn" href="#home">Inicio</a>
         <a class="nav-btn" href="#game-section">Juega la Demo</a>
         <a class="nav-btn" href="#solutions">Soluciones B2B</a>
         <a class="nav-btn" href="#technology">Tecnología</a>
-        <a href="#contact" class="btn btn-cta neon-border neon-text" style="padding: 8px 20px; font-size: 0.9rem;">Contacto</a>
+        <a href="#contact" class="btn btn-cta neon-border neon-text nav-contact-btn">Contacto</a>
       </nav>
     </div>
   </header>
@@ -135,26 +140,27 @@
       <span style="color: #aaa;">Solicite una propuesta personalizada</span>
     </div>
 
-    <form class="glass-panel contact-form metal-border" id="b2b-form" method="post">
+    <form class="glass-panel contact-form metal-border" id="b2b-form" name="b2b-contact" method="post" data-netlify="true" netlify>
       <div class="input-row">
         <div class="input-field">
           <label class="contrast-text">Nombre Completo</label>
-          <input type="text" name="name" class="glass-input" placeholder="Ej. Juan Pérez" required>
+          <input type="text" id="contact-name" name="name" class="glass-input" placeholder="Ej. Juan Pérez" required>
         </div>
         <div class="input-field">
           <label class="contrast-text">Institución / Empresa</label>
-          <input type="text" name="company" class="glass-input" placeholder="Nombre de la empresa" required>
+          <input type="text" id="contact-company" name="company" class="glass-input" placeholder="Nombre de la empresa" required>
         </div>
       </div>
       
       <div class="input-row">
         <div class="input-field">
           <label class="contrast-text">Correo Electrónico Corporativo</label>
-          <input type="email" name="email" class="glass-input" placeholder="correo@empresa.com" required>
+          <input type="email" id="contact-email" name="email" class="glass-input" placeholder="correo@empresa.com" required>
+          <small id="email-error" style="color: #ff4444; display: none; margin-top: 5px;">Por favor, use un correo corporativo (no Gmail, Hotmail, etc.)</small>
         </div>
         <div class="input-field">
           <label class="contrast-text">Tipo de Solución</label>
-          <select name="solution_type" class="glass-input" required>
+          <select id="contact-solution" name="solution_type" class="glass-input" required>
             <option value="Activacion BTL">Activación BTL Gamificada</option>
             <option value="Programa Educativo">Programa Educativo Colegios</option>
             <option value="Plataforma Web">Licenciamiento Web B2B</option>
@@ -163,8 +169,11 @@
         </div>
       </div>
 
-      <div class="submit-container">
+      <div class="submit-container" style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
         <button type="submit" class="btn btn-cta neon-border neon-text">[ ENVIAR SOLICITUD ]</button>
+        <button type="button" id="btn-whatsapp" class="btn btn-cta" style="border: 1px solid #25D366; color: #25D366; text-shadow: 0 0 5px rgba(37,211,102,0.5);">
+          <i class="fab fa-whatsapp"></i> [ CHAT WHATSAPP ]
+        </button>
       </div>
     </form>
   </section>

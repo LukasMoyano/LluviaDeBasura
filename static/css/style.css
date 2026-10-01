@@ -178,6 +178,16 @@ h1, h2 {
     color: var(--neon-green);
     text-shadow: 0 0 10px var(--neon-green-dim);
 }
+.nav-contact-btn {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    text-decoration: none;
+    text-align: center;
+}
+.navbar .nav-btn:hover {
+    color: var(--neon-green);
+    text-shadow: 0 0 10px var(--neon-green-dim);
+}
 
 /* New Logo Styles (Metalizado) */
 .logo-link {
@@ -374,8 +384,56 @@ h1, h2 {
     margin-top: 30px;
 }
 
+/* Hamburger Menu (Hidden by default) */
+.menu-toggle {
+    display: none;
+    font-size: 1.8rem;
+    color: var(--neon-green);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
 /* Responsive */
-@media (max-width: 768px) {
-    .header-container { flex-direction: column; gap: 15px; }
+@media (max-width: 991px) {
+    .header-container {
+        padding: 15px 20px;
+        flex-wrap: wrap;
+    }
+    .menu-toggle {
+        display: block;
+    }
+    .navbar {
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+        background: rgba(7, 10, 8, 0.95);
+        border: 1px solid var(--organic-green);
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        padding: 20px 0;
+        gap: 20px;
+        display: none; /* Hidden on mobile by default */
+        position: absolute;
+        top: 100%;
+        left: 0;
+        box-shadow: 0 10px 20px rgba(0, 255, 102, 0.1);
+    }
+    .navbar.active {
+        display: flex; /* Shown when toggled */
+    }
+    .navbar .nav-btn, .nav-contact-btn {
+        width: 90%;
+        text-align: center;
+        padding: 12px;
+    }
+    .nav-contact-btn {
+        margin-top: 10px;
+    }
     .glitch-title { font-size: 2.5rem; }
+}
+
+@media (max-width: 768px) {
+    .hero-section { padding-top: 100px; }
+    .glitch-title { font-size: 2rem; }
+    .btn-cta { padding: 12px 20px; font-size: 1rem; }
 }
