@@ -26,7 +26,7 @@ let current_level_idx = 0;
 
 let animationId;
 let spawn_timer = 0;
-const FALL_SPEED = 8;
+const FALL_SPEED = 650; // Pixels per second
 let tutorial_start_time = 0;
 
 let trash_items = [];
@@ -214,11 +214,11 @@ class Trash {
         
         this.x = 100 + Math.random() * (VW - 200 - this.width);
         this.y = -150;
-        this.speed = FALL_SPEED + Math.floor(Math.random() * 6) - 2; 
+        this.speed = FALL_SPEED + Math.floor(Math.random() * 200) - 100; // +/- 100 px/s
     }
     
-    update() {
-        this.y += this.speed;
+    update(dt) {
+        this.y += (this.speed * dt) / 1000;
     }
     
     draw(context) {
@@ -246,7 +246,16 @@ function drawBtn(ctx, key, txtKey) {
     }
 }
 
-function gameLoop() {
+let lastTime = 0;
+
+function gameLoop(timestamp) {
+    animationId = requestAnimationFrame(gameLoop);
+    if (!timestamp) timestamp = performance.now();
+    let dt = timestamp - lastTime;
+    if (lastTime === 0) dt = 16;
+    if (dt > 100) dt = 16; // Evita saltos enormes si cambian de pestaña
+    lastTime = timestamp;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     ctx.scale(canvas.width / VW, canvas.height / VH);
@@ -278,7 +287,7 @@ function gameLoop() {
         drawLayout(ctx, 'tutorial_bg');
         drawLayout(ctx, 'tutorial_txt');
         
-        if (Date.now() - tutorial_start_time > 6000) {
+        if (Date.now() - tutorial_start_time > 1500) {
             currentState = STATE_TUTORIAL;
         }
     }
@@ -297,12 +306,13 @@ function gameLoop() {
     }
     else if (currentState === STATE_PLAYING) {
         const targetType = LEVELS[current_level_idx];
-        const binKey = `caneca_${targetType}`;
-        const binLayout = LAYOUT[binKey];
-        const binImg = loadedImages[binKey];
+        const layoutKey = `caneca_${targetType.toLowerCase()}`;
+        const imgKey = `caneca_${targetType}`;
+        const binLayout = LAYOUT[layoutKey];
+        const binImg = loadedImages[imgKey];
         
-        spawn_timer++;
-        if (spawn_timer > 30) {
+        spawn_timer += dt;
+        if (spawn_timer > 700) { // Spawn every 700ms
             trash_items.push(new Trash());
             spawn_timer = 0;
         }
@@ -313,7 +323,7 @@ function gameLoop() {
         
         for (let i = trash_items.length - 1; i >= 0; i--) {
             let t = trash_items[i];
-            t.update();
+            t.update(dt);
             
             if (t.x < binLayout.x + binLayout.w &&
                 t.x + t.width > binLayout.x &&

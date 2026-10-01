@@ -13,10 +13,64 @@
   <!-- Estilos Cyberpunk Andino -->
   <link rel="stylesheet" href="./static/css/style.css">
   
-  
+  <style>
+    /* CSS adicional para el panel de instrucciones y botón de WhatsApp */
+    .instructions-panel {
+      max-width: 800px;
+      margin: 0 auto 30px auto;
+      padding: 20px;
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .instruction-step {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      animation: pulse-glow 3s infinite alternate;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 3px solid var(--organic-green);
+    }
+    .instruction-step:nth-child(2) { animation-delay: 1s; border-left-color: var(--cyan-terminal); }
+    .instruction-step:nth-child(3) { animation-delay: 2s; border-left-color: var(--acid-gold); }
+    
+    .instruction-step i {
+      font-size: 2rem;
+      color: var(--cyan-terminal);
+    }
+    .instruction-text h4 {
+      margin: 0 0 5px 0;
+      color: #fff;
+    }
+    .instruction-text p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    @keyframes pulse-glow {
+      0% { box-shadow: 0 0 5px rgba(0, 229, 255, 0.1); }
+      100% { box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); }
+    }
+
+    /* Estilos para el botón de WhatsApp (Integrado al CRM) */
+    .btn-whatsapp-custom {
+      border: 1px solid #25D366 !important;
+      color: #25D366 !important;
+      text-shadow: 0 0 5px rgba(37,211,102,0.5) !important;
+      transition: all 0.3s ease;
+    }
+    .btn-whatsapp-custom:hover {
+      background: rgba(37,211,102,0.1);
+      box-shadow: 0 0 15px rgba(37,211,102,0.6);
+    }
+  </style>
 </head>
 <body>
-  <!-- ===================== Background Slideshow ===================== -->
+  <!-- ===================== Background Slideshow (INTACTO) ===================== -->
   <div id="global-immersive-bg">
     <img src="./static/images/cyber-tree.jpg" class="bg-slide" style="animation-delay: 0s;" alt="Cyber Tree">
     <img src="./static/images/forest-recycle.jpg" class="bg-slide" style="animation-delay: 6s;" alt="Forest Recycle">
@@ -28,7 +82,6 @@
   <!-- ===================== Header & Nav ===================== -->
   <header class="header sticky">
     <div class="header-container">
-      <!-- Logo Metalizado -->
       <a href="#" class="logo-link">
         <div class="logo-container">
           <div class="logo-box">
@@ -37,24 +90,20 @@
           <span class="logo-text">Productions</span>
         </div>
       </a>
-
-      <!-- Hamburger Icon (Mobile) -->
       <div class="menu-toggle" id="mobile-menu">
         <i class="fas fa-bars"></i>
       </div>
-
-      <!-- Navbar -->
       <nav class="navbar" id="navbar">
         <a class="nav-btn" href="#home">Inicio</a>
-        <a class="nav-btn" href="#game-section">Juega la Demo</a>
-        <a class="nav-btn" href="#solutions">Soluciones B2B</a>
+        <a class="nav-btn" href="#game-section">Juega y Aprende</a>
         <a class="nav-btn" href="#technology">Tecnología</a>
+        <a class="nav-btn" href="#solutions">Soluciones B2B</a>
         <a href="#contact" class="btn btn-cta neon-border neon-text nav-contact-btn">Contacto</a>
       </nav>
     </div>
   </header>
 
-  <!-- ===================== Hero Section (Home) ===================== -->
+  <!-- ===================== SECCIÓN 1: Hero y Nuestro ADN ===================== -->
   <section class="home hero-section grid-texture" id="home">
     <div class="hero-content">
       <h1 class="acid-gold-text glitch-title" data-text="Sostenibilidad Interactiva para el Futuro">
@@ -63,30 +112,83 @@
       <p class="subtitle">
         Llevamos la educación ambiental a otro nivel. Videojuegos controlados por Inteligencia Artificial y Visión Computacional, adaptables a tu institución.
       </p>
-      <a href="#game-section" class="btn btn-cta neon-border neon-text">[ PROBAR DEMO AHORA ]</a>
+      
+      <!-- Párrafo de ADN -->
+      <div class="adn-panel glass-panel metal-border" style="margin-top: 30px; padding: 25px; text-align: justify; max-width: 900px; margin-left: auto; margin-right: auto;">
+        <h3 class="neon-text" style="text-align: center; margin-bottom: 15px;">Nuestro ADN</h3>
+        <p style="color: #ddd; font-size: 1.05rem; line-height: 1.6;">
+          En <strong>-IR- Productions</strong> somos creadores y <em>builders</em> de tecnología con propósito. Entrecruzamos las artes visuales, la ciencia y la innovación profunda a través de la metodología pedagógica <strong>STEAM</strong>. No somos solo integradores; forjamos nuestras propias herramientas desde cero, aplicando Inteligencia Artificial en el <em>Edge</em>, infraestructura soberana y reciclaje tecnológico (Upcycling). Construimos experiencias interactivas que transforman la forma en que las organizaciones comprenden su impacto ambiental, demostrando que la tecnología avanzada y la ecología pueden fusionarse para crear un futuro sostenible.
+        </p>
+      </div>
+      
+      <a href="#game-section" class="btn btn-cta neon-border neon-text" style="margin-top: 30px; display: inline-block;">[ PROBAR DEMO AHORA ]</a>
     </div>
     <div class="hero-bg-overlay"></div>
   </section>
 
-  <!-- ===================== Área de Juego (Nueva Sección) ===================== -->
+  <!-- ===================== SECCIÓN 2: Juega y Aprende ===================== -->
   <section class="game-area" id="game-section">
     <div class="heading text-center">
-      <h2 class="contrast-text">Demostración Interactiva Web</h2>
-      <p style="color: #ccc;">(Juega usando el cursor de tu ratón o pantalla táctil)</p>
+      <h2 class="contrast-text">Juega y Aprende</h2>
+      <p style="color: #ccc;">(Demostración Web: Juega usando el cursor de tu ratón o pantalla táctil)</p>
+    </div>
+
+    <!-- Panel de Instrucciones Ligero -->
+    <div class="instructions-panel glass-panel metal-border">
+      <div class="instruction-step">
+        <i class="fas fa-hand-pointer"></i>
+        <div class="instruction-text">
+          <h4>Paso 1: Mueve</h4>
+          <p>Selecciona la caneca moviendo tu mano (ratón) de izquierda a derecha (o deslizando tu dedo en móviles).</p>
+        </div>
+      </div>
+      <div class="instruction-step">
+        <i class="fas fa-recycle"></i>
+        <div class="instruction-text">
+          <h4>Paso 2: Atrapa</h4>
+          <p>Atrapa los residuos que caen (Orgánicos, Plásticos, Vidrio) en el contenedor correcto.</p>
+        </div>
+      </div>
+      <div class="instruction-step">
+        <i class="fas fa-star"></i>
+        <div class="instruction-text">
+          <h4>Paso 3: Puntúa</h4>
+          <p>Suma <span style="color: var(--organic-green); font-weight: bold;">+10 puntos</span> por cada acierto. Cuidado: pierdes <span style="color: #ff4444; font-weight: bold;">-2 puntos</span> por cada error o residuo dejado caer.</p>
+        </div>
+      </div>
     </div>
     
     <div class="game-container glass-panel metal-border">
-      
       <canvas id="gameCanvas" width="1280" height="720"></canvas>
-      
-      <!-- Overlay UI for Game -->
       <div id="game-ui-overlay" class="game-overlay">
         <button id="btn-calibrate" class="btn btn-terminal neon-border neon-text">[ JUGAR AHORA ]</button>
       </div>
     </div>
   </section>
 
-  <!-- ===================== Soluciones Institucionales ===================== -->
+  <!-- ===================== SECCIÓN 3: Nuestra Magia Tecnológica (Movido aquí) ===================== -->
+  <section class="tech-section grid-texture" id="technology">
+    <div class="heading text-center">
+      <h2 class="contrast-text">Nuestra Magia Tecnológica</h2>
+      <span style="color: #aaa;">La ciencia detrás de la experiencia que acabas de probar</span>
+    </div>
+
+    <div class="box-container">
+      <div class="tech-card glass-panel neon-border">
+        <i class="fas fa-camera neon-text icon-large" style="font-size: 3rem; margin-bottom: 15px;"></i>
+        <h3 class="acid-gold-text">Control Natural por Gestos</h3>
+        <p>Olvídate del mouse y el teclado. En nuestras activaciones inmersivas, nuestro motor de Visión Artificial detecta las manos del usuario a través de cualquier cámara web estándar, permitiendo que literalmente agarren y suelten residuos virtuales en el aire.</p>
+      </div>
+      
+      <div class="tech-card glass-panel neon-border">
+        <i class="fas fa-microchip neon-text icon-large" style="font-size: 3rem; margin-bottom: 15px;"></i>
+        <h3 class="acid-gold-text">Zero Latency Edge-Computing</h3>
+        <p>No enviamos tu video a servidores externos. Todo el procesamiento neuronal y el reconocimiento espacial ocurren directamente en tu hardware de manera local (On-Premise), garantizando privacidad absoluta y respuesta hiper-rápida (Zero Latency).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SECCIÓN 4: Soluciones Institucionales (Ampliado) ===================== -->
   <section class="solutions-section" id="solutions">
     <div class="heading text-center">
       <h2 class="contrast-text">Soluciones Institucionales</h2>
@@ -94,52 +196,34 @@
     </div>
 
     <div class="box-container">
-      <div class="solution-card glass-panel neon-border">
+      <div class="solution-card glass-panel metal-border">
         <i class="fas fa-recycle neon-text icon-large"></i>
         <h3 class="contrast-text">Integración Post-Consumo</h3>
-        <p>Enlazamos el juego con sus programas reales de recolección, recompensando a los usuarios que aprenden a reciclar correctamente.</p>
+        <p>Plataformas a medida para enseñar a clasificar RAEE o residuos específicos de la empresa. Enlazamos el juego con programas reales de recolección, recompensando a empleados y ciudadanos que aprenden a reciclar correctamente.</p>
       </div>
       
-      <div class="solution-card glass-panel neon-border">
-        <i class="fas fa-gamepad neon-text icon-large"></i>
-        <h3 class="contrast-text">Activaciones BTL Gamificadas</h3>
-        <p>Pantallas interactivas gigantes en centros comerciales o ferias, atrayendo al público con tecnología de captura de movimiento inmersiva.</p>
+      <div class="solution-card glass-panel metal-border">
+        <i class="fas fa-plug acid-gold-text icon-large"></i>
+        <h3 class="contrast-text">Activaciones BTL Gamificadas & E-Waste</h3>
+        <p>Recuperamos y reprogramamos equipos tecnológicos obsoletos (upcycling de e-waste) y los transformamos en Máquinas Arcade corporativas. Llevamos aprendizajes inmersivos físicos a las empresas usando su propia tecnología reciclada para ferias y eventos.</p>
       </div>
 
-      <div class="solution-card glass-panel neon-border">
-        <i class="fas fa-chart-pie neon-text icon-large"></i>
-        <h3 class="contrast-text">Dashboards de Métricas</h3>
-        <p>Visualización de impacto en tiempo real. Análisis de datos, retención de aprendizaje y estadísticas corporativas de RS.</p>
+      <div class="solution-card glass-panel metal-border">
+        <i class="fas fa-chart-line cyan-terminal icon-large" style="color: var(--cyan-terminal);"></i>
+        <h3 class="contrast-text">Dashboards de Métricas (KPIs)</h3>
+        <p>Entornos de doble vista. Una experiencia inmersiva para el jugador y un panel de administración de datos soberano en tiempo real, para que la organización mida el impacto ambiental, el aumento de habilidades y el rendimiento de la activación.</p>
       </div>
     </div>
   </section>
 
-  <!-- ===================== Tecnología ===================== -->
-  <section class="tech-section grid-texture" id="technology">
+  <!-- ==================== SECCIÓN 5: Sigamos en contacto / Veámonos ==================== -->
+  <section class="contact-section grid-texture" id="contact">
     <div class="heading text-center">
-      <h2 class="contrast-text">Nuestra Magia Tecnológica</h2>
+      <h2 class="contrast-text">Sigamos en contacto / Veámonos</h2>
+      <span style="color: #aaa;">Solicita una propuesta B2B personalizada</span>
     </div>
 
-    <div class="box-container">
-      <div class="tech-card glass-panel">
-        <h3 class="acid-gold-text">Control Natural por Gestos</h3>
-        <p>Olvídate del mouse y el teclado. Nuestro motor de Visión Artificial detecta las manos del usuario a través de cualquier cámara web estándar, permitiendo que literalmente agarren y suelten residuos virtuales en el aire.</p>
-      </div>
-      
-      <div class="tech-card glass-panel">
-        <h3 class="acid-gold-text">Zero Latency Edge-Computing</h3>
-        <p>No enviamos tu video a servidores externos. Todo el procesamiento neuronal y el reconocimiento espacial ocurren directamente en tu navegador, garantizando privacidad absoluta y respuesta instantánea.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==================== Formulario de Contacto (Captación B2B) ==================== -->
-  <section class="contact-section" id="contact">
-    <div class="heading text-center">
-      <h2 class="contrast-text">Contacto B2B</h2>
-      <span style="color: #aaa;">Solicite una propuesta personalizada</span>
-    </div>
-
+    <!-- FORMULARIO INTACTO (Sin modificar ids, names, etiquetas clave) -->
     <form class="glass-panel contact-form metal-border" id="b2b-form">
       <div class="input-row">
         <div class="input-field">
@@ -171,16 +255,17 @@
 
       <div class="submit-container" style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
         <button type="submit" class="btn btn-cta neon-border neon-text">[ ENVIAR SOLICITUD ]</button>
-        <button type="button" id="btn-whatsapp" class="btn btn-cta" style="border: 1px solid #25D366; color: #25D366; text-shadow: 0 0 5px rgba(37,211,102,0.5);">
-          <i class="fab fa-whatsapp"></i> [ CHAT WHATSAPP ]
+        <!-- Botón de WhatsApp integrado al flujo de main_ui.js (con data-href opcional visual) -->
+        <button type="button" id="btn-whatsapp" class="btn btn-cta btn-whatsapp-custom" data-href="https://wa.me/TUNUMERO">
+          <i class="fab fa-whatsapp"></i> Chateemos
         </button>
       </div>
     </form>
   </section>
 
   <!-- Scripts (Con Cache-Busting) -->
-  <script src="./static/js/game_engine.js?v=3"></script>
-  <script src="./static/js/main_ui.js?v=3"></script>
+  <script src="./static/js/game_engine.js?v=4"></script>
+  <script src="./static/js/main_ui.js?v=4"></script>
 
 </body>
 </html>
