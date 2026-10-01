@@ -6,7 +6,7 @@
 
 ---
 
-## 🇪🇸 Español: Lluvia de Basura (Sostenibilidad Interactiva)
+## 🇪🇸 "Lluvia de Basura" (Sostenibilidad Interactiva)
 
 ### 🌍 El Proyecto
 **Lluvia de Basura** es una experiencia interactiva diseñada para revolucionar la educación ambiental mediante la gamificación. Utilizando visión computacional avanzada, los usuarios interactúan con la pantalla en tiempo real usando únicamente los movimientos de su cuerpo (Zero-Touch), aprendiendo a clasificar residuos de manera intuitiva y altamente inmersiva bajo la estética del *Cyberpunk Andino*.
@@ -26,7 +26,7 @@ Hemos construido este motor priorizando la privacidad y el rendimiento extremo:
 
 ---
 
-## 🇬🇧 English: Trash Rain (Interactive Sustainability)
+## 🇬🇧 "Trash Rain" (Interactive Sustainability)
 
 ### 🌍 The Project
 **Trash Rain** is an interactive experience designed to revolutionize environmental education through gamification. Using advanced computer vision, users interact with the screen in real-time using only their body movements (Zero-Touch), learning to sort waste in an intuitive and highly immersive way under the *Andean Cyberpunk* aesthetic.
@@ -46,7 +46,7 @@ We built this engine prioritizing privacy and extreme performance:
 
 ---
 
-## 🇫🇷 Français: Pluie de Déchets (Durabilité Interactive)
+## 🇫🇷 "Pluie de Déchets" (Durabilité Interactive)
 
 ### 🌍 Le Projet
 **Pluie de Déchets** est une expérience interactive conçue pour révolutionner l'éducation environnementale grâce à la gamification. Grâce à une vision par ordinateur avancée, les utilisateurs interagissent avec l'écran en temps réel en utilisant uniquement les mouvements de leur corps (Zero-Touch), apprenant à trier les déchets de manière intuitive et hautement immersive sous l'esthétique du *Cyberpunk Andin*.
