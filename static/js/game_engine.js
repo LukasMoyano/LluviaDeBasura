@@ -249,7 +249,6 @@ function drawBtn(ctx, key, txtKey) {
 let lastTime = 0;
 
 function gameLoop(timestamp) {
-    animationId = requestAnimationFrame(gameLoop);
     if (!timestamp) timestamp = performance.now();
     let dt = timestamp - lastTime;
     if (lastTime === 0) dt = 16;
@@ -317,7 +316,12 @@ function gameLoop(timestamp) {
             spawn_timer = 0;
         }
         
-        // Movimiento directo con el cursor/dedo
+        // Integración IA: Sobrescribir cursorX si la IA de visión está activa
+        if (window.visionActive) {
+            cursorX = window.handCursorX * VW;
+        }
+
+        // Movimiento directo con el cursor/dedo/IA
         binLayout.x = cursorX - (binLayout.w / 2);
         binLayout.x = Math.max(0, Math.min(binLayout.x, VW - binLayout.w));
         
