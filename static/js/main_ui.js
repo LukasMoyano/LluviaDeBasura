@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // URL del Google Apps Script (Web App)
-    const GOOGLE_SCRIPT_URL = "PEGAR_AQUI_LA_URL_DEL_WEB_APP";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwIUgcewvDd5Bh3RpgJ4W0wOku7Xwk5KtVSBobXp0LA2Az4Ctf3hZBpwAIu6HevLIpDNQ/exec";
 
     if (form) {
         form.addEventListener('submit', (e) => {
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = true;
 
             // Enviar a Google Workspace (Apps Script)
-            if (GOOGLE_SCRIPT_URL === "PEGAR_AQUI_LA_URL_DEL_WEB_APP") {
+            if (GOOGLE_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbwIUgcewvDd5Bh3RpgJ4W0wOku7Xwk5KtVSBobXp0LA2Az4Ctf3hZBpwAIu6HevLIpDNQ/exec") {
                 alert("Modo Desarrollo: Falta configurar la URL del Google Script. Revisa el archivo main_ui.js.");
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
