@@ -1,7 +1,7 @@
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ITEMS_DIR = os.path.join(BASE_DIR, 'Items')
+ITEMS_DIR = os.path.join(BASE_DIR, 'static/images')
 
 # Fondos y Backgrounds
 ASSET_BACKGROUND = os.path.join(ITEMS_DIR, 'FondoFondo', 'BackBackground.png')
