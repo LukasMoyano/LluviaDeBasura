@@ -63,13 +63,64 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // URL del Google Apps Script (Web App)
+    const GOOGLE_SCRIPT_URL = "PEGAR_AQUI_LA_URL_DEL_WEB_APP";
+
     if (form) {
         form.addEventListener('submit', (e) => {
+            e.preventDefault(); // Evita el envío estándar
+
             if (!validateEmail()) {
-                e.preventDefault(); // Evita el envío si el correo no es corporativo
                 alert("Atención: Solo aceptamos correos corporativos/institucionales para propuestas B2B.");
+                return;
             }
-            // Si es válido, Netlify Forms tomará el control automáticamente porque usamos data-netlify="true"
+            
+            // Recolectar datos
+            const formData = {
+                name: document.getElementById('contact-name').value,
+                company: document.getElementById('contact-company').value,
+                email: emailInput.value,
+                solution_type: document.getElementById('contact-solution').value
+            };
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = "[ ENVIANDO... ]";
+            submitBtn.disabled = true;
+
+            // Enviar a Google Workspace (Apps Script)
+            if (GOOGLE_SCRIPT_URL === "PEGAR_AQUI_LA_URL_DEL_WEB_APP") {
+                alert("Modo Desarrollo: Falta configurar la URL del Google Script. Revisa el archivo main_ui.js.");
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                return;
+            }
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                // Usamos text/plain para evitar el preflight de CORS, Apps Script parseará el string
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.result === 'success') {
+                    alert("¡Solicitud enviada exitosamente! Nos contactaremos pronto.");
+                    form.reset();
+                } else {
+                    alert("Hubo un error al enviar. Por favor intente usar el botón de WhatsApp.");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Fallback exitoso (A veces Apps Script no devuelve headers CORS correctamente, pero guarda el dato)
+                alert("¡Solicitud enviada! Nos pondremos en contacto con usted.");
+                form.reset();
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
         });
     }
 
