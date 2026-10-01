@@ -1,0 +1,168 @@
+{
+    "resolution": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 30
+    },
+    "colors": {
+        "white": [
+            255,
+            255,
+            255
+        ],
+        "red": [
+            255,
+            50,
+            50
+        ],
+        "green": [
+            50,
+            255,
+            50
+        ],
+        "black": [
+            0,
+            0,
+            0
+        ]
+    },
+    "fonts": {
+        "main_font": "Impact",
+        "size_large": 72,
+        "size_medium": 48
+    },
+    "assets": {
+        "background": "Items/FondoFondo/BackBackground.png",
+        "trees": "Items/FondoFondo/arboles.png",
+        "bushes": "Items/FondoFondo/arbustos.png",
+        "intro_bg1": "Items/TL-INTRO_juega y aprende/bg1.png",
+        "intro_bg2": "Items/TL-INTRO_juega y aprende/bg2.png",
+        "intro_title": "Items/TL-INTRO_juega y aprende/juega y aprende.png",
+        "tutorial_bg": "Items/TL_instrucciones/TL_instrucciones_bkg.png",
+        "tutorial_txt": "Items/TL_instrucciones/TL_instrucciones_txt.png",
+        "btn_inicio": "Items/BTN_INICIO-VOLVER A JUGAR/btn_inicio_bkg.png",
+        "btn_inicio_txt": "Items/BTN_INICIO-VOLVER A JUGAR/btn_inicio_txt.png",
+        "btn_replay_txt": "Items/BTN_INICIO-VOLVER A JUGAR/btn_volver a jugar_txt.png",
+        "caneca_verde": "Items/Canecas/obj_CANECA VERDE.png",
+        "caneca_azul": "Items/Canecas/obj_CANECA AZUL.png",
+        "caneca_negra": "Items/Canecas/obj_CANECA NEGRA .png",
+        "felicitaciones_bg": "Items/TLs_/btn_FELICITACIONES_bkg.png",
+        "felicitaciones_txt": "Items/TLs_/btn_FELICITACIONES_txt.png",
+        "gameover_bg": "Items/TLs_/btn_intentalo de nuevo_bkg.png",
+        "gameover_txt": "Items/TLs_/btn_intentalo de nuevo_txt.png"
+    },
+    "layout": {
+        "intro_bg1": {
+            "x": 260,
+            "y": 80,
+            "w": 1400,
+            "h": 260
+        },
+        "intro_bg2": {
+            "x": 310,
+            "y": 100,
+            "w": 1300,
+            "h": 220
+        },
+        "intro_title": {
+            "x": 360,
+            "y": 145,
+            "w": 1200,
+            "h": 130
+        },
+        "tutorial_bg": {
+            "x": 160,
+            "y": 100,
+            "w": 1600,
+            "h": 260
+        },
+        "tutorial_txt": {
+            "x": 210,
+            "y": 140,
+            "w": 1500,
+            "h": 180
+        },
+        "btn_inicio": {
+            "x": 760,
+            "y": 500,
+            "w": 400,
+            "h": 150
+        },
+        "btn_entendido": {
+            "x": 760,
+            "y": 500,
+            "w": 400,
+            "h": 150
+        },
+        "btn_volver": {
+            "x": 760,
+            "y": 700,
+            "w": 400,
+            "h": 150
+        },
+        "felicitaciones_bg": {
+            "x": 460,
+            "y": 100,
+            "w": 1000,
+            "h": 240
+        },
+        "felicitaciones_txt": {
+            "x": 510,
+            "y": 130,
+            "w": 900,
+            "h": 180
+        },
+        "caneca_verde": {
+            "x": 400,
+            "y": 700,
+            "w": 250,
+            "h": 320
+        },
+        "caneca_azul": {
+            "x": 1270,
+            "y": 700,
+            "w": 250,
+            "h": 320
+        },
+        "caneca_negra": {
+            "x": 835,
+            "y": 700,
+            "w": 250,
+            "h": 320
+        },
+        "trash_size": {
+            "w": 120,
+            "h": 120
+        },
+        "btn_inicio_center": {
+            "x": 760,
+            "y": 450,
+            "w": 400,
+            "h": 150
+        },
+        "btn_inicio_left": {
+            "x": 460,
+            "y": 450,
+            "w": 400,
+            "h": 150
+        },
+        "btn_volver_right": {
+            "x": 1060,
+            "y": 450,
+            "w": 400,
+            "h": 150
+        },
+        "gameover_bg": {
+            "x": 460,
+            "y": 100,
+            "w": 1000,
+            "h": 240
+        },
+        "gameover_txt": {
+            "x": 510,
+            "y": 130,
+            "w": 900,
+            "h": 180
+        }
+    }
+}
