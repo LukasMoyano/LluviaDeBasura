@@ -3,6 +3,7 @@ import random
 import cv2
 import sys
 import time
+import threading
 from vision_tracker import HandTracker
 
 # ==========================================
@@ -44,8 +45,8 @@ MAX_MISTAKES = 5
 SCORE_TO_PASS = 5
 
 DEBUG_MODE = False
-PRESENTATION_MODE = True  # Pantalla alterna para la presentacion en vivo
-FALL_SPEED = 8  # Modifica este valor en caliente para la velocidad
+PRESENTATION_MODE = False  # Desactivada por defecto para máxima velocidad y FPS
+FALL_SPEED = 10  # Modifica este valor en caliente para la velocidad
 PALM_SENSITIVITY = 1.5  # Multiplicador de movimiento
 
 score = 0
@@ -87,8 +88,79 @@ class Trash:
 cam_index = int(sys.argv[1]) if len(sys.argv) > 1 else 0
 print(f"Arrancando cámara {cam_index}...")
 cap = cv2.VideoCapture(cam_index, cv2.CAP_V4L2)
+
+# Si el índice elegido no abre, probar automáticamente los otros índices disponibles
+if not cap.isOpened():
+    for alt_idx in [1, 0, 2, 3]:
+        if alt_idx != cam_index:
+            test_cap = cv2.VideoCapture(alt_idx, cv2.CAP_V4L2)
+            if test_cap.isOpened():
+                cap = test_cap
+                cam_index = alt_idx
+                print(f"-> Cámara conectada con éxito en índice alternativo {cam_index}")
+                break
+
+# Optimización extrema de velocidad de captura para Linux V4L2
+cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+cap.set(cv2.CAP_PROP_FPS, 30)
+cap.set(cv2.CAP_PROP_BUFFERSIZE, 1) # Reducir buffer a 1 frame para latencia cero
+
 tracker = HandTracker()
-for _ in range(5): cap.read() # Calentamiento
+if cap.isOpened():
+    for _ in range(5): cap.read() # Calentamiento
+
+
+class VisionThread(threading.Thread):
+    def __init__(self, cap, tracker):
+        super().__init__()
+        self.cap = cap
+        self.tracker = tracker
+        self.running = True
+        self.state = {"detected": False, "is_pinching": False, "is_open": False, "cursor_x": 0, "cursor_y": 0}
+        self.img = None
+        self.mp_latency = 0
+        self.lock = threading.Lock()
+        
+        # Hilo interno solo para limpiar el buffer de la cámara
+        self.latest_frame = None
+        self.frame_lock = threading.Lock()
+        self.capture_thread = threading.Thread(target=self._capture_loop)
+        self.capture_thread.daemon = True
+        self.capture_thread.start()
+
+    def _capture_loop(self):
+        while self.running and self.cap.isOpened():
+            success, frame = self.cap.read()
+            if success:
+                with self.frame_lock:
+                    self.latest_frame = frame
+
+    def run(self):
+        while self.running:
+            frame_to_process = None
+            with self.frame_lock:
+                if self.latest_frame is not None:
+                    frame_to_process = self.latest_frame
+                    self.latest_frame = None # Limpiar para esperar el siguiente frame fresco
+                    
+            if frame_to_process is not None:
+                img = cv2.flip(frame_to_process, 1)
+                t_start = time.time()
+                state, tracked_img = self.tracker.get_hand_state(img)
+                latency = (time.time() - t_start) * 1000
+                
+                with self.lock:
+                    self.state = state
+                    self.img = tracked_img
+                    self.mp_latency = latency
+            else:
+                time.sleep(0.005)
+
+vision_thread = VisionThread(cap, tracker)
+vision_thread.daemon = True
+vision_thread.start()
 
 cursor_pos = (am.internal_w//2, am.internal_h//2)
 is_open = False
@@ -117,31 +189,32 @@ while running:
             DEBUG_MODE = not DEBUG_MODE
             
     if cap.isOpened():
-        success, img = cap.read()
-        if success and img is not None:
-            img = cv2.flip(img, 1)
-            t_start = time.time()
-            state, tracked_img = tracker.get_hand_state(img)
-            mp_latency = (time.time() - t_start) * 1000
+        with vision_thread.lock:
+            state = vision_thread.state
+            tracked_img = vision_thread.img
+            mp_latency = vision_thread.mp_latency
             
+        if tracked_img is not None:
             if PRESENTATION_MODE:
-                cv2.putText(tracked_img, f"Latencia MediaPipe: {int(mp_latency)}ms", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                # Create a copy so we don't draw over the same image multiple times if it hasn't updated
+                disp_img = tracked_img.copy()
+                cv2.putText(disp_img, f"Latencia MediaPipe: {int(mp_latency)}ms", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
                 status = "Moviendo cursor"
                 if state["is_pinching"]:
                     status = "CLIC (Pinza)"
-                    cv2.circle(tracked_img, (state["cursor_x"], state["cursor_y"]), 15, (0, 255, 0), cv2.FILLED)
+                    cv2.circle(disp_img, (state["cursor_x"], state["cursor_y"]), 15, (0, 255, 0), cv2.FILLED)
                 elif state["is_open"]:
                     status = "PAUSA (Mano Abierta)"
-                    cv2.circle(tracked_img, (state["cursor_x"], state["cursor_y"]), 15, (0, 0, 255), cv2.FILLED)
+                    cv2.circle(disp_img, (state["cursor_x"], state["cursor_y"]), 15, (0, 0, 255), cv2.FILLED)
                 else:
-                    cv2.circle(tracked_img, (state["cursor_x"], state["cursor_y"]), 10, (255, 0, 0), cv2.FILLED)
+                    cv2.circle(disp_img, (state["cursor_x"], state["cursor_y"]), 10, (255, 0, 0), cv2.FILLED)
                     
-                cv2.putText(tracked_img, status, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
-                cv2.imshow("IR Productions - Presentacion Tracking", tracked_img)
+                cv2.putText(disp_img, status, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+                cv2.imshow("IR Productions - Presentacion Tracking", disp_img)
                 cv2.waitKey(1)
             
             if state["detected"]:
-                cam_h, cam_w, _ = img.shape
+                cam_h, cam_w, _ = tracked_img.shape
                 raw_x = (state["cursor_x"] / cam_w) * am.internal_w
                 # Aplicamos PALM_SENSITIVITY desde el centro
                 cx = am.internal_w / 2
@@ -149,20 +222,27 @@ while running:
                 target_y = int((state["cursor_y"] / cam_h) * am.internal_h)
                 
                 cursor_pos = (
-                    int(cursor_pos[0] + (target_x - cursor_pos[0]) * 0.5),
-                    int(cursor_pos[1] + (target_y - cursor_pos[1]) * 0.5)
+                    int(cursor_pos[0] + (target_x - cursor_pos[0]) * 0.85),
+                    int(cursor_pos[1] + (target_y - cursor_pos[1]) * 0.85)
                 )
                 is_open = state["is_open"]
-                # Pinch is not needed anymore for gameplay, we only track the hand
-        else:
-            if not cam_error_reported:
-                print("Error de cámara.")
-                cam_error_reported = True
+    else:
+        if not cam_error_reported:
+            print("Error de cámara.")
+            cam_error_reported = True
+
+    # Respaldo automático con Ratón físico si no hay mano en pantalla o no hay cámara
+    if not cap.isOpened() or not state.get("detected", False):
+        mx, my = pygame.mouse.get_pos()
+        scale_x = am.internal_w / PHYSICAL_W
+        scale_y = am.internal_h / PHYSICAL_H
+        cursor_pos = (int(mx * scale_x), int(my * scale_y))
+        is_pinching_menu = pygame.mouse.get_pressed()[0]
+    else:
+        is_pinching_menu = state.get("is_pinching", False)
 
     cursor_rect = pygame.Rect(cursor_pos[0] - 15, cursor_pos[1] - 15, 30, 30)
     internal_surface.fill((0, 0, 0))
-
-    is_pinching_menu = (cap.isOpened() and state.get("is_pinching", False))
     if current_state == STATE_INTRO:
         internal_surface.blit(am.get_img('background'), (0, 0))
         internal_surface.blit(am.get_img('trees'), (0, 0))
@@ -277,10 +357,28 @@ while running:
         for t in trash_items:
             t.draw(internal_surface)
 
-        # UI Textos
+        # UI Textos y Banner Superior
+        # UI Textos y Banner Superior a dos renglones
+        overlay_h = 140
+        overlay = pygame.Surface((am.internal_w, overlay_h), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 180))
+        internal_surface.blit(overlay, (0, 0))
+
+        # Textos Renglón 1 (font_medium)
         txt_score = font_medium.render(f"PUNTOS: {score}", True, am.get_color("white"))
-        txt_level = font_medium.render(f"NIVEL {current_level_idx + 1}: CANECA {target_bin_type}", True, am.get_color("white"))
         txt_progress = font_medium.render(f"PROGRESO: {correct_in_level}/{SCORE_TO_PASS}", True, am.get_color("white"))
+        
+        err_color = (255, 100, 100) if mistakes >= MAX_MISTAKES - 1 else (255, 200, 0)
+        txt_mistakes = font_medium.render(f"ERRORES: {mistakes}/{MAX_MISTAKES}", True, err_color)
+
+        # Textos Renglón 2 (font_large)
+        color_map = {
+            "VERDE": (50, 255, 50),
+            "AZUL": (50, 150, 255),
+            "NEGRA": (150, 150, 150)
+        }
+        lvl_color = color_map.get(target_bin_type, am.get_color("white"))
+        txt_level = font_large.render(f"NIVEL {current_level_idx + 1}: CANECA {target_bin_type}", True, lvl_color)
         
         if DEBUG_MODE:
             pygame.draw.rect(internal_surface, (255, 0, 0), bin_rect, 4)
@@ -289,17 +387,20 @@ while running:
                 
             txt_fps = font_medium.render(f"FPS: {int(clock.get_fps())}", True, (255,0,0))
             txt_lat = font_medium.render(f"MP Latencia: {int(mp_latency)}ms", True, (255,0,0))
-            internal_surface.blit(txt_fps, (20, 100))
-            internal_surface.blit(txt_lat, (20, 140))
+            # Mover estos textos de debug más abajo para que no se pisen con el banner
+            internal_surface.blit(txt_fps, (20, 160))
+            internal_surface.blit(txt_lat, (20, 200))
             
-        internal_surface.blit(font_medium.render(f"PUNTOS: {score}", True, am.get_color("black")), (22, 22))
-        internal_surface.blit(txt_score, (20, 20))
-        
-        internal_surface.blit(font_medium.render(f"NIVEL {current_level_idx + 1}: CANECA {target_bin_type}", True, am.get_color("black")), (am.internal_w//2 - txt_level.get_width()//2 + 2, 22))
-        internal_surface.blit(txt_level, (am.internal_w//2 - txt_level.get_width()//2, 20))
+        # --- POSICIONAMIENTO ---
+        # Renglón 1: Y = 25
+        y_r1 = 25
+        internal_surface.blit(txt_score, (50, y_r1)) # Izquierda
+        internal_surface.blit(txt_progress, (am.internal_w // 2 - txt_progress.get_width() // 2, y_r1)) # Centro
+        internal_surface.blit(txt_mistakes, (am.internal_w - txt_mistakes.get_width() - 50, y_r1)) # Derecha
 
-        internal_surface.blit(font_medium.render(f"PROGRESO: {correct_in_level}/{SCORE_TO_PASS}", True, am.get_color("black")), (am.internal_w - 350 + 2, 22))
-        internal_surface.blit(txt_progress, (am.internal_w - 350, 20))
+        # Renglón 2: Y = 85 (Debajo del Renglón 1)
+        y_r2 = 80
+        internal_surface.blit(txt_level, (am.internal_w // 2 - txt_level.get_width() // 2, y_r2)) # Centro absoluto
         
     elif current_state == STATE_LEVEL_COMPLETE:
         internal_surface.blit(am.get_img("background"), (0, 0))

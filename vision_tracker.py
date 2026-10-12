@@ -8,14 +8,16 @@ class HandTracker:
         self.hands = self.mp_hands.Hands(
             static_image_mode=False,
             max_num_hands=1,
-            min_detection_confidence=0.7,
-            min_tracking_confidence=0.7
+            model_complexity=0,
+            min_detection_confidence=0.55,
+            min_tracking_confidence=0.55
         )
         self.mp_draw = mp.solutions.drawing_utils
 
     def get_hand_state(self, image):
-        # Convertir a RGB para MediaPipe
-        img_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # Reducir imagen a 320x240 para inferencia ultra rápida en CPU
+        small_img = cv2.resize(image, (320, 240))
+        img_rgb = cv2.cvtColor(small_img, cv2.COLOR_BGR2RGB)
         results = self.hands.process(img_rgb)
         
         state = {
