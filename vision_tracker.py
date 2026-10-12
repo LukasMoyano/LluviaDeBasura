@@ -9,8 +9,8 @@ class HandTracker:
             static_image_mode=False,
             max_num_hands=1,
             model_complexity=0,
-            min_detection_confidence=0.55,
-            min_tracking_confidence=0.55
+            min_detection_confidence=0.5,
+            min_tracking_confidence=0.5
         )
         self.mp_draw = mp.solutions.drawing_utils
 
@@ -18,7 +18,9 @@ class HandTracker:
         # Reducir imagen a 320x240 para inferencia ultra rápida en CPU
         small_img = cv2.resize(image, (320, 240))
         img_rgb = cv2.cvtColor(small_img, cv2.COLOR_BGR2RGB)
+        img_rgb.flags.writeable = False # Rendimiento zero-copy para MediaPipe
         results = self.hands.process(img_rgb)
+        img_rgb.flags.writeable = True
         
         state = {
             "cursor_x": 0,

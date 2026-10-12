@@ -111,66 +111,42 @@ if cap.isOpened():
     for _ in range(5): cap.read() # Calentamiento
 
 
-class VisionThread(threading.Thread):
+class VisionWorker(threading.Thread):
     def __init__(self, cap, tracker):
         super().__init__()
         self.cap = cap
         self.tracker = tracker
         self.running = True
-        self.state = {"detected": False, "is_pinching": False, "is_open": False, "cursor_x": 0, "cursor_y": 0}
-        self.img = None
-        self.mp_latency = 0
-        self.new_frame_ready = False
+        self.daemon = True
         self.lock = threading.Lock()
         
-        # Hilo interno para vaciar constantemente el buffer de la cámara en hardware
-        self.latest_frame = None
-        self.frame_lock = threading.Lock()
-        self.capture_thread = threading.Thread(target=self._capture_loop)
-        self.capture_thread.daemon = True
-        self.capture_thread.start()
-
-    def _capture_loop(self):
-        while self.running and self.cap.isOpened():
-            try:
-                # Drenar buffers viejos del driver para garantizar CERO retraso
-                if not self.cap.grab():
-                    time.sleep(0.005)
-                    continue
-                success, frame = self.cap.retrieve()
-                if success and frame is not None and frame.size > 0:
-                    with self.frame_lock:
-                        self.latest_frame = frame
-            except Exception:
-                time.sleep(0.01)
+        self.state = {"detected": False, "is_pinching": False, "is_open": False, "cursor_x": 0, "cursor_y": 0}
+        self.tracked_img = None
+        self.mp_latency = 0
+        self.new_frame = False
 
     def run(self):
-        while self.running:
-            frame_to_process = None
-            with self.frame_lock:
-                if self.latest_frame is not None:
-                    frame_to_process = self.latest_frame
-                    self.latest_frame = None # Limpiar para esperar el siguiente frame fresco
-                    
-            if frame_to_process is not None:
-                try:
-                    img = cv2.flip(frame_to_process, 1)
-                    t_start = time.time()
-                    state, tracked_img = self.tracker.get_hand_state(img)
-                    latency = (time.time() - t_start) * 1000
-                    
-                    with self.lock:
-                        self.state = state
-                        self.img = tracked_img
-                        self.mp_latency = latency
-                        self.new_frame_ready = True
-                except Exception:
-                    pass
-            else:
-                time.sleep(0.003)
+        while self.running and self.cap.isOpened():
+            ret, frame = self.cap.read()
+            if not ret or frame is None:
+                time.sleep(0.005)
+                continue
+                
+            try:
+                img = cv2.flip(frame, 1)
+                t_start = time.time()
+                state, tracked = self.tracker.get_hand_state(img)
+                latency = (time.time() - t_start) * 1000
+                
+                with self.lock:
+                    self.state = state
+                    self.tracked_img = tracked
+                    self.mp_latency = latency
+                    self.new_frame = True
+            except Exception:
+                pass
 
-vision_thread = VisionThread(cap, tracker)
-vision_thread.daemon = True
+vision_thread = VisionWorker(cap, tracker)
 vision_thread.start()
 
 cursor_pos = (am.internal_w//2, am.internal_h//2)
@@ -203,29 +179,31 @@ while running:
         new_frame = False
         with vision_thread.lock:
             state = vision_thread.state
-            tracked_img = vision_thread.img
+            tracked_img = vision_thread.tracked_img
             mp_latency = vision_thread.mp_latency
-            if vision_thread.new_frame_ready:
+            if vision_thread.new_frame:
                 new_frame = True
-                vision_thread.new_frame_ready = False
+                vision_thread.new_frame = False
             
         if tracked_img is not None:
             if PRESENTATION_MODE and new_frame:
-                disp_img = tracked_img.copy()
-                cv2.putText(disp_img, f"Latencia IA: {int(mp_latency)}ms", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                cv2.putText(tracked_img, f"Latencia IA: {int(mp_latency)}ms", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
                 status = "Moviendo cursor"
                 if state["is_pinching"]:
                     status = "CLIC (Pinza)"
-                    cv2.circle(disp_img, (state["cursor_x"], state["cursor_y"]), 15, (0, 255, 0), cv2.FILLED)
+                    cv2.circle(tracked_img, (state["cursor_x"], state["cursor_y"]), 15, (0, 255, 0), cv2.FILLED)
                 elif state["is_open"]:
                     status = "PAUSA (Mano Abierta)"
-                    cv2.circle(disp_img, (state["cursor_x"], state["cursor_y"]), 15, (0, 0, 255), cv2.FILLED)
+                    cv2.circle(tracked_img, (state["cursor_x"], state["cursor_y"]), 15, (0, 0, 255), cv2.FILLED)
                 else:
-                    cv2.circle(disp_img, (state["cursor_x"], state["cursor_y"]), 10, (255, 0, 0), cv2.FILLED)
+                    cv2.circle(tracked_img, (state["cursor_x"], state["cursor_y"]), 10, (255, 0, 0), cv2.FILLED)
                     
-                cv2.putText(disp_img, status, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
-                cv2.imshow("IR Productions - Presentacion Tracking", disp_img)
-                cv2.waitKey(1)
+                cv2.putText(tracked_img, status, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+                cv2.imshow("IR Productions - Presentacion Tracking", tracked_img)
+                try:
+                    cv2.pollKey()
+                except AttributeError:
+                    cv2.waitKey(1)
             
             if state["detected"]:
                 cam_h, cam_w, _ = tracked_img.shape
@@ -236,8 +214,8 @@ while running:
                 target_y = int((state["cursor_y"] / cam_h) * am.internal_h)
                 
                 cursor_pos = (
-                    int(cursor_pos[0] + (target_x - cursor_pos[0]) * 0.85),
-                    int(cursor_pos[1] + (target_y - cursor_pos[1]) * 0.85)
+                    int(cursor_pos[0] + (target_x - cursor_pos[0]) * 0.75),
+                    int(cursor_pos[1] + (target_y - cursor_pos[1]) * 0.75)
                 )
                 is_open = state["is_open"]
     else:
