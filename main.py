@@ -45,7 +45,7 @@ MAX_MISTAKES = 5
 SCORE_TO_PASS = 5
 
 DEBUG_MODE = False
-PRESENTATION_MODE = False  # Desactivada por defecto para máxima velocidad y FPS
+PRESENTATION_MODE = True  # Pantalla alterna de exposición en tiempo real
 FALL_SPEED = 10  # Modifica este valor en caliente para la velocidad
 PALM_SENSITIVITY = 1.5  # Multiplicador de movimiento
 
@@ -100,12 +100,11 @@ if not cap.isOpened():
                 print(f"-> Cámara conectada con éxito en índice alternativo {cam_index}")
                 break
 
-# Optimización extrema de velocidad de captura para Linux V4L2
-cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+# Configuración de captura (Resolución 640x480 estándar y buffer mínimo)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 cap.set(cv2.CAP_PROP_FPS, 30)
-cap.set(cv2.CAP_PROP_BUFFERSIZE, 1) # Reducir buffer a 1 frame para latencia cero
+cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
 tracker = HandTracker()
 if cap.isOpened():
@@ -121,9 +120,10 @@ class VisionThread(threading.Thread):
         self.state = {"detected": False, "is_pinching": False, "is_open": False, "cursor_x": 0, "cursor_y": 0}
         self.img = None
         self.mp_latency = 0
+        self.new_frame_ready = False
         self.lock = threading.Lock()
         
-        # Hilo interno solo para limpiar el buffer de la cámara
+        # Hilo interno para vaciar constantemente el buffer de la cámara en hardware
         self.latest_frame = None
         self.frame_lock = threading.Lock()
         self.capture_thread = threading.Thread(target=self._capture_loop)
@@ -132,10 +132,17 @@ class VisionThread(threading.Thread):
 
     def _capture_loop(self):
         while self.running and self.cap.isOpened():
-            success, frame = self.cap.read()
-            if success:
-                with self.frame_lock:
-                    self.latest_frame = frame
+            try:
+                # Drenar buffers viejos del driver para garantizar CERO retraso
+                if not self.cap.grab():
+                    time.sleep(0.005)
+                    continue
+                success, frame = self.cap.retrieve()
+                if success and frame is not None and frame.size > 0:
+                    with self.frame_lock:
+                        self.latest_frame = frame
+            except Exception:
+                time.sleep(0.01)
 
     def run(self):
         while self.running:
@@ -146,17 +153,21 @@ class VisionThread(threading.Thread):
                     self.latest_frame = None # Limpiar para esperar el siguiente frame fresco
                     
             if frame_to_process is not None:
-                img = cv2.flip(frame_to_process, 1)
-                t_start = time.time()
-                state, tracked_img = self.tracker.get_hand_state(img)
-                latency = (time.time() - t_start) * 1000
-                
-                with self.lock:
-                    self.state = state
-                    self.img = tracked_img
-                    self.mp_latency = latency
+                try:
+                    img = cv2.flip(frame_to_process, 1)
+                    t_start = time.time()
+                    state, tracked_img = self.tracker.get_hand_state(img)
+                    latency = (time.time() - t_start) * 1000
+                    
+                    with self.lock:
+                        self.state = state
+                        self.img = tracked_img
+                        self.mp_latency = latency
+                        self.new_frame_ready = True
+                except Exception:
+                    pass
             else:
-                time.sleep(0.005)
+                time.sleep(0.003)
 
 vision_thread = VisionThread(cap, tracker)
 vision_thread.daemon = True
@@ -189,16 +200,19 @@ while running:
             DEBUG_MODE = not DEBUG_MODE
             
     if cap.isOpened():
+        new_frame = False
         with vision_thread.lock:
             state = vision_thread.state
             tracked_img = vision_thread.img
             mp_latency = vision_thread.mp_latency
+            if vision_thread.new_frame_ready:
+                new_frame = True
+                vision_thread.new_frame_ready = False
             
         if tracked_img is not None:
-            if PRESENTATION_MODE:
-                # Create a copy so we don't draw over the same image multiple times if it hasn't updated
+            if PRESENTATION_MODE and new_frame:
                 disp_img = tracked_img.copy()
-                cv2.putText(disp_img, f"Latencia MediaPipe: {int(mp_latency)}ms", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                cv2.putText(disp_img, f"Latencia IA: {int(mp_latency)}ms", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
                 status = "Moviendo cursor"
                 if state["is_pinching"]:
                     status = "CLIC (Pinza)"
@@ -507,4 +521,5 @@ while running:
 
 if cap.isOpened():
     cap.release()
+cv2.destroyAllWindows()
 pygame.quit()
